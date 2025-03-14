@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="blue">
+    <meta name="apple-mobile-web-app-title" content="tic tac toe 2">
+    <link rel="apple-touch-icon" href="tictactoe2.png">
+
+
+    <title>tic tac toe 2.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                    }
+                }
+            },
+            darkMode: 'class'
+        }
+    </script>
+    <style>
+        :root {
+            --cell-size: 30px;
+            --player-x-color: #FF6B6B;
+            --player-o-color: #48BEFF;
+            --active-board-color: rgba(93, 92, 222, 0.3);
+            --completed-board-x: rgba(255, 107, 107, 0.3);
+            --completed-board-o: rgba(72, 190, 255, 0.3);
+            --completed-board-draw: rgba(150, 150, 150, 0.3);
+        }
+
+        .dark {
+            --active-board-color: rgba(93, 92, 222, 0.5);
+            --completed-board-x: rgba(255, 107, 107, 0.5);
+            --completed-board-o: rgba(72, 190, 255, 0.5);
+            --completed-board-draw: rgba(150, 150, 150, 0.5);
+        }
+
+        .board-cell.active {
+            background-color: var(--active-board-color);
+        }
+
+        .board-cell.won-x {
+            background-color: var(--completed-board-x);
+        }
+
+        .board-cell.won-o {
+            background-color: var(--completed-board-o);
+        }
+
+        .board-cell.draw {
+            background-color: var(--completed-board-draw);
+        }
+
+        .cell.x::before,
+        .cell.x::after {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 10%;
+            background-color: var(--player-x-color);
+            transform: translate(-50%, -50%) rotate(45deg);
+            top: 50%;
+            left: 50%;
+            border-radius: 9999px;
+        }
+
+        .cell.x::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .cell.o::before {
+            content: '';
+            position: absolute;
+            width: 70%;
+            height: 70%;
+            border: calc(var(--cell-size) * 0.1) solid var(--player-o-color);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .mini-board.won-x::after,
+        .mini-board.won-o::after,
+        .mini-board.draw::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .dark .mini-board.won-x::after,
+        .dark .mini-board.won-o::after,
+        .dark .mini-board.draw::after {
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .mini-board.won-x::after {
+            content: 'X';
+            color: var(--player-x-color);
+        }
+
+        .mini-board.won-o::after {
+            content: 'O';
+            color: var(--player-o-color);
+        }
+
+        .mini-board.draw::after {
+            content: '=';
+            color: #888;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 640px) {
+            :root {
+                --cell-size: 20px;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --active-board-color: rgba(93, 92, 222, 0.5);
+                --completed-board-x: rgba(255, 107, 107, 0.5);
+                --completed-board-o: rgba(72, 190, 255, 0.5);
+                --completed-board-draw: rgba(150, 150, 150, 0.5);
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4 text-primary text-center">Ultimate Jogo da Velha</h1>
+
+    <div class="mb-6 text-center">
+        <p class="text-lg mb-2">Jogador atual: <span id="current-player" class="font-bold">X</span></p>
+        <p id="game-status" class="text-sm text-gray-600 dark:text-gray-400">Jogue em qualquer lugar do tabuleiro para
+            começar</p>
+    </div>
+
+    <div id="big-board"
+        class="grid grid-cols-3 gap-2 p-2 bg-gray-200 dark:bg-gray-800 rounded-lg shadow-lg max-w-md mx-auto">
+        <!-- 9 mini tabuleiros serão gerados aqui via JavaScript -->
+    </div>
+
+    <div class="mt-8 flex flex-col gap-4 text-center">
+        <button id="restart-btn"
+            class="px-6 py-2 bg-primary hover:bg-primary/80 text-white rounded-lg transition-colors font-medium">
+            Reiniciar Jogo
+        </button>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto space-y-2">
+            <p><strong>Regras:</strong></p>
+            <ul class="text-xs text-left space-y-1">
+                <li>• Cada célula grande contém um jogo da velha normal</li>
+                <li>• A posição onde você joga em um tabuleiro pequeno determina em qual tabuleiro grande o próximo
+                    jogador deve jogar</li>
+                <li>• Para vencer, você precisa ganhar três jogos da velha alinhados no tabuleiro grande</li>
+                <li>• Tabuleiros empatados são "coringas" que podem ser usados por qualquer jogador</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Detecção de modo escuro
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Estado do jogo
+        const gameState = {
+            currentPlayer: Math.random() < 0.5 ? 'X' : 'O',
+            activeBoardIndex: null, // null significa que qualquer tabuleiro pode ser escolhido
+            boards: Array(9).fill().map(() => Array(9).fill(null)),
+            boardStatus: Array(9).fill(null), // null, 'X', 'O', ou 'draw'
+            gameResult: null // null, 'X', 'O', ou 'draw'
+        };
+
+        // Elementos do DOM
+        const bigBoard = document.getElementById('big-board');
+        const currentPlayerDisplay = document.getElementById('current-player');
+        const gameStatus = document.getElementById('game-status');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Inicializar o jogo
+        initGame();
+
+        // Reiniciar jogo
+        restartBtn.addEventListener('click', () => {
+            gameState.currentPlayer = Math.random() < 0.5 ? 'X' : 'O';
+            gameState.activeBoardIndex = null;
+            gameState.boards = Array(9).fill().map(() => Array(9).fill(null));
+            gameState.boardStatus = Array(9).fill(null);
+            gameState.gameResult = null;
+
+            // Limpar e reconstruir o tabuleiro
+            bigBoard.innerHTML = '';
+            initGame();
+
+            currentPlayerDisplay.textContent = gameState.currentPlayer;
+            currentPlayerDisplay.style.color = gameState.currentPlayer === 'X' ? 'var(--player-x-color)' : 'var(--player-o-color)';
+            gameStatus.textContent = 'Jogue em qualquer lugar do tabuleiro para começar';
+        });
+
+        function initGame() {
+            // Criar a estrutura do tabuleiro grande
+            for (let i = 0; i < 9; i++) {
+                const boardCell = document.createElement('div');
+                boardCell.classList.add('board-cell', 'relative');
+                boardCell.dataset.boardIndex = i;
+
+                // Criar o mini-tabuleiro 3x3 dentro da célula grande
+                const miniBoard = document.createElement('div');
+                miniBoard.classList.add('mini-board', 'grid', 'grid-cols-3', 'gap-1', 'relative');
+                miniBoard.style.width = 'calc(var(--cell-size) * 3 + 2rem)';
+                miniBoard.style.height = 'calc(var(--cell-size) * 3 + 2rem)';
+
+                // Criar as células do mini-tabuleiro
+                for (let j = 0; j < 9; j++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell', 'relative', 'bg-white', 'dark:bg-gray-700', 'cursor-pointer');
+                    cell.style.width = 'var(--cell-size)';
+                    cell.style.height = 'var(--cell-size)';
+                    cell.dataset.boardIndex = i;
+                    cell.dataset.cellIndex = j;
+
+                    cell.addEventListener('click', () => handleCellClick(i, j));
+
+                    miniBoard.appendChild(cell);
+                }
+
+                boardCell.appendChild(miniBoard);
+                bigBoard.appendChild(boardCell);
+            }
+
+            updateBoardDisplay();
+
+            // Definir a cor do jogador atual
+            currentPlayerDisplay.textContent = gameState.currentPlayer;
+            currentPlayerDisplay.style.color = gameState.currentPlayer === 'X' ? 'var(--player-x-color)' : 'var(--player-o-color)';
+        }
+
+        function handleCellClick(boardIndex, cellIndex) {
+            // Verificar se o jogo já terminou
+            if (gameState.gameResult) return;
+
+            // Verificar se é um tabuleiro válido para jogar
+            if (gameState.activeBoardIndex !== null && gameState.activeBoardIndex !== boardIndex) {
+                // Verificar se o tabuleiro ativo já foi completado
+                if (gameState.boardStatus[gameState.activeBoardIndex] === null) {
+                    gameStatus.textContent = `Você deve jogar no tabuleiro destacado`;
+                    gameStatus.classList.add('text-red-500');
+                    setTimeout(() => {
+                        gameStatus.classList.remove('text-red-500');
+                    }, 1000);
+                    return;
+                }
+            }
+
+            // Verificar se o tabuleiro já foi completado
+            if (gameState.boardStatus[boardIndex] !== null) {
+                gameStatus.textContent = `Este tabuleiro já foi completado`;
+                gameStatus.classList.add('text-red-500');
+                setTimeout(() => {
+                    gameStatus.classList.remove('text-red-500');
+                }, 1000);
+                return;
+            }
+
+            // Verificar se a célula já está ocupada
+            if (gameState.boards[boardIndex][cellIndex] !== null) {
+                gameStatus.textContent = `Esta célula já está ocupada`;
+                gameStatus.classList.add('text-red-500');
+                setTimeout(() => {
+                    gameStatus.classList.remove('text-red-500');
+                }, 1000);
+                return;
+            }
+
+            // Realizar a jogada
+            gameState.boards[boardIndex][cellIndex] = gameState.currentPlayer;
+
+            // Verificar se há vitória no mini-tabuleiro
+            const miniWinner = checkWinner(gameState.boards[boardIndex]);
+            if (miniWinner) {
+                gameState.boardStatus[boardIndex] = miniWinner;
+
+                // Verificar se há vitória no tabuleiro grande
+                const bigWinner = checkWinner(gameState.boardStatus);
+                if (bigWinner) {
+                    gameState.gameResult = bigWinner;
+                    gameStatus.textContent = bigWinner === 'draw' ? 'Jogo empatado!' : `Jogador ${bigWinner} venceu o jogo!`;
+                }
+            }
+
+            // Alternar jogador
+            gameState.currentPlayer = gameState.currentPlayer === 'X' ? 'O' : 'X';
+            currentPlayerDisplay.textContent = gameState.currentPlayer;
+            currentPlayerDisplay.style.color = gameState.currentPlayer === 'X' ? 'var(--player-x-color)' : 'var(--player-o-color)';
+
+            // Definir o próximo tabuleiro ativo
+            // A próxima posição corresponde à posição onde o jogador jogou no mini-tabuleiro
+            gameState.activeBoardIndex = cellIndex;
+
+            // Se o próximo tabuleiro já estiver completo, o jogador pode escolher qualquer um
+            if (gameState.boardStatus[gameState.activeBoardIndex] !== null) {
+                gameState.activeBoardIndex = null;
+                gameStatus.textContent = `O próximo tabuleiro já foi completado. Jogue em qualquer tabuleiro disponível.`;
+            } else {
+                gameStatus.textContent = `Jogue no tabuleiro destacado (posição ${cellIndex + 1})`;
+            }
+
+            // Atualizar a exibição do tabuleiro
+            updateBoardDisplay();
+        }
+
+        function updateBoardDisplay() {
+            const boardCells = document.querySelectorAll('.board-cell');
+
+            // Atualizar status de cada tabuleiro grande
+            for (let i = 0; i < 9; i++) {
+                const boardCell = boardCells[i];
+                const miniBoard = boardCell.querySelector('.mini-board');
+
+                // Remover classes anteriores
+                boardCell.classList.remove('active', 'won-x', 'won-o', 'draw');
+                miniBoard.classList.remove('won-x', 'won-o', 'draw');
+
+                // Adicionar classe baseada no status do tabuleiro
+                if (gameState.boardStatus[i] === 'X') {
+                    boardCell.classList.add('won-x');
+                    miniBoard.classList.add('won-x');
+                } else if (gameState.boardStatus[i] === 'O') {
+                    boardCell.classList.add('won-o');
+                    miniBoard.classList.add('won-o');
+                } else if (gameState.boardStatus[i] === 'draw') {
+                    boardCell.classList.add('draw');
+                    miniBoard.classList.add('draw');
+                }
+
+                // Destacar o tabuleiro ativo
+                if (gameState.activeBoardIndex === i && gameState.boardStatus[i] === null) {
+                    boardCell.classList.add('active');
+                }
+
+                // Atualizar células do mini-tabuleiro
+                const cells = miniBoard.querySelectorAll('.cell');
+                for (let j = 0; j < 9; j++) {
+                    const cell = cells[j];
+
+                    // Remover marcações anteriores
+                    cell.classList.remove('x', 'o');
+
+                    // Adicionar marcação baseada no estado do jogo
+                    if (gameState.boards[i][j] === 'X') {
+                        cell.classList.add('x');
+                    } else if (gameState.boards[i][j] === 'O') {
+                        cell.classList.add('o');
+                    }
+                }
+            }
+        }
+
+        function checkWinner(board) {
+            // Linhas, colunas e diagonais para verificar vitória
+            const lines = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // linhas
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // colunas
+                [0, 4, 8], [2, 4, 6]             // diagonais
+            ];
+
+            // Verificar vitória
+            for (const line of lines) {
+                const [a, b, c] = line;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a]; // 'X' ou 'O'
+                }
+            }
+
+            // Verificar empate
+            if (!board.includes(null)) {
+                return 'draw';
+            }
+
+            // Jogo ainda em andamento
+            return null;
+        }
+    </script>
+</body>
+
+</html>
