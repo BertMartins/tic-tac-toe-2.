@@ -10,8 +10,7 @@
     <meta name="apple-mobile-web-app-title" content="tic tac toe 2">
     <link rel="apple-touch-icon" href="tictactoe2.png">
 
-
-    <title>tic tac toe 2.</title>
+    <title>Ultimate Jogo da Velha</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -34,6 +33,8 @@
             --completed-board-x: rgba(255, 107, 107, 0.3);
             --completed-board-o: rgba(72, 190, 255, 0.3);
             --completed-board-draw: rgba(150, 150, 150, 0.3);
+            --grid-line-color: #888;
+            --grid-line-color-dark: #555;
         }
 
         .dark {
@@ -41,6 +42,8 @@
             --completed-board-x: rgba(255, 107, 107, 0.5);
             --completed-board-o: rgba(72, 190, 255, 0.5);
             --completed-board-draw: rgba(150, 150, 150, 0.5);
+            --grid-line-color: #555;
+            --grid-line-color-dark: #888;
         }
 
         .board-cell.active {
@@ -127,6 +130,176 @@
             color: #888;
         }
 
+        /* Estilo de jogo da velha para mini tabuleiros */
+        .mini-board {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            background-color: transparent;
+        }
+
+        .mini-board::before,
+        .mini-board::after {
+            content: '';
+            position: absolute;
+            background-color: var(--grid-line-color);
+            z-index: 1;
+        }
+
+        .dark .mini-board::before,
+        .dark .mini-board::after {
+            background-color: var(--grid-line-color-dark);
+        }
+
+        /* Linhas horizontais do jogo da velha */
+        .mini-board::before {
+            width: 100%;
+            height: 2px;
+            top: 33.33%;
+            left: 0;
+            box-shadow: 0 calc(33.33% + 2px) 0 var(--grid-line-color);
+        }
+
+        .dark .mini-board::before {
+            box-shadow: 0 calc(33.33% + 2px) 0 var(--grid-line-color-dark);
+        }
+
+        /* Linhas verticais do jogo da velha */
+        .mini-board::after {
+            height: 100%;
+            width: 2px;
+            left: 33.33%;
+            top: 0;
+            box-shadow: calc(33.33% + 2px) 0 0 var(--grid-line-color);
+        }
+
+        .dark .mini-board::after {
+            box-shadow: calc(33.33% + 2px) 0 0 var(--grid-line-color-dark);
+        }
+
+        /* Estilo de jogo da velha para o tabuleiro grande */
+        #big-board {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background-color: var(--grid-line-color);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .dark #big-board {
+            background-color: var(--grid-line-color-dark);
+        }
+
+        .cell {
+            background-color: white;
+            border-radius: 0;
+            z-index: 2;
+        }
+
+        .dark .cell {
+            background-color: #2a2a2a;
+        }
+
+        /* Tela de vitória */
+        #victory-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: white;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        #victory-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Animação de linhas vencedoras */
+        .winning-line {
+            position: absolute;
+            background-color: gold;
+            z-index: 20;
+            opacity: 0;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        .winning-line.horizontal {
+            height: 6px;
+            width: 90%;
+            border-radius: 3px;
+            left: 5%;
+        }
+
+        .winning-line.vertical {
+            width: 6px;
+            height: 90%;
+            border-radius: 3px;
+            top: 5%;
+        }
+
+        .winning-line.diagonal-1 {
+            height: 6px;
+            width: 120%;
+            border-radius: 3px;
+            transform-origin: left center;
+            transform: rotate(45deg);
+            left: -10%;
+            top: 50%;
+        }
+
+        .winning-line.diagonal-2 {
+            height: 6px;
+            width: 120%;
+            border-radius: 3px;
+            transform-origin: right center;
+            transform: rotate(-45deg);
+            right: -10%;
+            top: 50%;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes confetti {
+            0% {
+                transform: translateY(0) rotate(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 99;
+            animation: confetti 5s ease-in forwards;
+        }
+
         /* Responsiveness */
         @media (max-width: 640px) {
             :root {
@@ -157,15 +330,21 @@
     </div>
 
     <div id="big-board"
-        class="grid grid-cols-3 gap-2 p-2 bg-gray-200 dark:bg-gray-800 rounded-lg shadow-lg max-w-md mx-auto">
+        class="grid grid-cols-3 gap-2 rounded-lg shadow-lg max-w-md mx-auto">
         <!-- 9 mini tabuleiros serão gerados aqui via JavaScript -->
     </div>
 
     <div class="mt-8 flex flex-col gap-4 text-center">
-        <button id="restart-btn"
-            class="px-6 py-2 bg-primary hover:bg-primary/80 text-white rounded-lg transition-colors font-medium">
-            Reiniciar Jogo
-        </button>
+        <div class="flex justify-center gap-4">
+            <button id="undo-btn"
+                class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                ↩️ Voltar Jogada
+            </button>
+            <button id="restart-btn"
+                class="px-6 py-2 bg-primary hover:bg-primary/80 text-white rounded-lg transition-colors font-medium">
+                🔄 Reiniciar Jogo
+            </button>
+        </div>
 
         <div class="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto space-y-2">
             <p><strong>Regras:</strong></p>
@@ -177,6 +356,16 @@
                 <li>• Tabuleiros empatados são "coringas" que podem ser usados por qualquer jogador</li>
             </ul>
         </div>
+    </div>
+
+    <!-- Tela de vitória -->
+    <div id="victory-screen" class="text-center">
+        <h2 id="victory-title" class="text-5xl font-bold mb-8 animate-bounce"></h2>
+        <p id="victory-message" class="text-2xl mb-8"></p>
+        <button id="new-game-btn" 
+            class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium text-xl">
+            Jogar Novamente
+        </button>
     </div>
 
     <script>
@@ -198,7 +387,10 @@
             activeBoardIndex: null, // null significa que qualquer tabuleiro pode ser escolhido
             boards: Array(9).fill().map(() => Array(9).fill(null)),
             boardStatus: Array(9).fill(null), // null, 'X', 'O', ou 'draw'
-            gameResult: null // null, 'X', 'O', ou 'draw'
+            gameResult: null, // null, 'X', 'O', ou 'draw'
+            winningLine: null, // índices dos tabuleiros que formam a linha vencedora
+            // Histórico de movimentos
+            moveHistory: [],
         };
 
         // Elementos do DOM
@@ -206,26 +398,54 @@
         const currentPlayerDisplay = document.getElementById('current-player');
         const gameStatus = document.getElementById('game-status');
         const restartBtn = document.getElementById('restart-btn');
+        const undoBtn = document.getElementById('undo-btn');
+        const victoryScreen = document.getElementById('victory-screen');
+        const victoryTitle = document.getElementById('victory-title');
+        const victoryMessage = document.getElementById('victory-message');
+        const newGameBtn = document.getElementById('new-game-btn');
 
         // Inicializar o jogo
         initGame();
 
         // Reiniciar jogo
         restartBtn.addEventListener('click', () => {
+            resetGame();
+        });
+
+        // Botão de nova partida na tela de vitória
+        newGameBtn.addEventListener('click', () => {
+            resetGame();
+            hideVictoryScreen();
+        });
+
+        // Botão de voltar jogada
+        undoBtn.addEventListener('click', undoLastMove);
+        // Desabilitar o botão de voltar inicialmente
+        undoBtn.disabled = true;
+
+        function resetGame() {
             gameState.currentPlayer = Math.random() < 0.5 ? 'X' : 'O';
             gameState.activeBoardIndex = null;
             gameState.boards = Array(9).fill().map(() => Array(9).fill(null));
             gameState.boardStatus = Array(9).fill(null);
             gameState.gameResult = null;
+            gameState.winningLine = null;
+            gameState.moveHistory = [];
 
             // Limpar e reconstruir o tabuleiro
             bigBoard.innerHTML = '';
             initGame();
 
+            // Desabilitar o botão de voltar
+            undoBtn.disabled = true;
+
             currentPlayerDisplay.textContent = gameState.currentPlayer;
             currentPlayerDisplay.style.color = gameState.currentPlayer === 'X' ? 'var(--player-x-color)' : 'var(--player-o-color)';
             gameStatus.textContent = 'Jogue em qualquer lugar do tabuleiro para começar';
-        });
+
+            // Remover linhas vencedoras
+            document.querySelectorAll('.winning-line').forEach(line => line.remove());
+        }
 
         function initGame() {
             // Criar a estrutura do tabuleiro grande
@@ -236,7 +456,7 @@
 
                 // Criar o mini-tabuleiro 3x3 dentro da célula grande
                 const miniBoard = document.createElement('div');
-                miniBoard.classList.add('mini-board', 'grid', 'grid-cols-3', 'gap-1', 'relative');
+                miniBoard.classList.add('mini-board', 'relative');
                 miniBoard.style.width = 'calc(var(--cell-size) * 3 + 2rem)';
                 miniBoard.style.height = 'calc(var(--cell-size) * 3 + 2rem)';
 
@@ -273,37 +493,31 @@
             if (gameState.activeBoardIndex !== null && gameState.activeBoardIndex !== boardIndex) {
                 // Verificar se o tabuleiro ativo já foi completado
                 if (gameState.boardStatus[gameState.activeBoardIndex] === null) {
-                    gameStatus.textContent = `Você deve jogar no tabuleiro destacado`;
-                    gameStatus.classList.add('text-red-500');
-                    setTimeout(() => {
-                        gameStatus.classList.remove('text-red-500');
-                    }, 1000);
+                    showMessage(`Você deve jogar no tabuleiro destacado`, true);
                     return;
                 }
             }
 
             // Verificar se o tabuleiro já foi completado
             if (gameState.boardStatus[boardIndex] !== null) {
-                gameStatus.textContent = `Este tabuleiro já foi completado`;
-                gameStatus.classList.add('text-red-500');
-                setTimeout(() => {
-                    gameStatus.classList.remove('text-red-500');
-                }, 1000);
+                showMessage(`Este tabuleiro já foi completado`, true);
                 return;
             }
 
             // Verificar se a célula já está ocupada
             if (gameState.boards[boardIndex][cellIndex] !== null) {
-                gameStatus.textContent = `Esta célula já está ocupada`;
-                gameStatus.classList.add('text-red-500');
-                setTimeout(() => {
-                    gameStatus.classList.remove('text-red-500');
-                }, 1000);
+                showMessage(`Esta célula já está ocupada`, true);
                 return;
             }
 
+            // Salvar o estado atual para o histórico
+            saveGameState();
+
             // Realizar a jogada
             gameState.boards[boardIndex][cellIndex] = gameState.currentPlayer;
+
+            // Habilitar o botão de voltar
+            undoBtn.disabled = false;
 
             // Verificar se há vitória no mini-tabuleiro
             const miniWinner = checkWinner(gameState.boards[boardIndex]);
@@ -311,10 +525,18 @@
                 gameState.boardStatus[boardIndex] = miniWinner;
 
                 // Verificar se há vitória no tabuleiro grande
-                const bigWinner = checkWinner(gameState.boardStatus);
-                if (bigWinner) {
-                    gameState.gameResult = bigWinner;
-                    gameStatus.textContent = bigWinner === 'draw' ? 'Jogo empatado!' : `Jogador ${bigWinner} venceu o jogo!`;
+                const result = checkWinnerWithLine(gameState.boardStatus);
+                if (result) {
+                    gameState.gameResult = result.winner;
+                    gameState.winningLine = result.line;
+                    
+                    if (result.winner === 'draw') {
+                        showMessage(`Jogo empatado!`);
+                        showDrawVictory();
+                    } else {
+                        showMessage(`Jogador ${result.winner} venceu o jogo!`);
+                        showVictoryScreen(result.winner, result.line);
+                    }
                 }
             }
 
@@ -330,9 +552,9 @@
             // Se o próximo tabuleiro já estiver completo, o jogador pode escolher qualquer um
             if (gameState.boardStatus[gameState.activeBoardIndex] !== null) {
                 gameState.activeBoardIndex = null;
-                gameStatus.textContent = `O próximo tabuleiro já foi completado. Jogue em qualquer tabuleiro disponível.`;
+                showMessage(`O próximo tabuleiro já foi completado. Jogue em qualquer tabuleiro disponível.`);
             } else {
-                gameStatus.textContent = `Jogue no tabuleiro destacado (posição ${cellIndex + 1})`;
+                showMessage(`Jogue no tabuleiro destacado (posição ${cellIndex + 1})`);
             }
 
             // Atualizar a exibição do tabuleiro
@@ -409,6 +631,219 @@
 
             // Jogo ainda em andamento
             return null;
+        }
+
+        // Função que retorna tanto o vencedor quanto a linha vencedora
+        function checkWinnerWithLine(board) {
+            // Linhas, colunas e diagonais para verificar vitória
+            const lines = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // linhas
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // colunas
+                [0, 4, 8], [2, 4, 6]             // diagonais
+            ];
+
+            // Verificar vitória
+            for (const line of lines) {
+                const [a, b, c] = line;
+                if (board[a] && board[a] === board[b] && board[a] === board[c] &&
+                   board[a] !== 'draw') { // Não considerar empates como vitória
+                    return {
+                        winner: board[a],
+                        line: line
+                    };
+                }
+            }
+
+            // Verificar empate
+            if (!board.includes(null)) {
+                return {
+                    winner: 'draw',
+                    line: null
+                };
+            }
+
+            // Jogo ainda em andamento
+            return null;
+        }
+
+        // Função para salvar o estado atual do jogo para o histórico
+        function saveGameState() {
+            // Clonar o estado atual do jogo
+            const currentState = {
+                currentPlayer: gameState.currentPlayer,
+                activeBoardIndex: gameState.activeBoardIndex,
+                boards: JSON.parse(JSON.stringify(gameState.boards)),
+                boardStatus: [...gameState.boardStatus],
+                gameResult: gameState.gameResult,
+                winningLine: gameState.winningLine ? [...gameState.winningLine] : null
+            };
+
+            // Adicionar ao histórico
+            gameState.moveHistory.push(currentState);
+        }
+
+        // Função para desfazer o último movimento
+        function undoLastMove() {
+            if (gameState.moveHistory.length === 0) {
+                return; // Não há movimentos para desfazer
+            }
+
+            // Recuperar o estado anterior
+            const previousState = gameState.moveHistory.pop();
+
+            // Restaurar o estado
+            gameState.currentPlayer = previousState.currentPlayer;
+            gameState.activeBoardIndex = previousState.activeBoardIndex;
+            gameState.boards = previousState.boards;
+            gameState.boardStatus = previousState.boardStatus;
+            gameState.gameResult = previousState.gameResult;
+            gameState.winningLine = previousState.winningLine;
+
+            // Atualizar a exibição
+            currentPlayerDisplay.textContent = gameState.currentPlayer;
+            currentPlayerDisplay.style.color = gameState.currentPlayer === 'X' ? 'var(--player-x-color)' : 'var(--player-o-color)';
+            
+            if (gameState.activeBoardIndex === null) {
+                gameStatus.textContent = 'Jogue em qualquer tabuleiro disponível';
+            } else {
+                gameStatus.textContent = `Jogue no tabuleiro destacado (posição ${gameState.activeBoardIndex + 1})`;
+            }
+
+            // Desabilitar o botão de voltar se não houver mais histórico
+            if (gameState.moveHistory.length === 0) {
+                undoBtn.disabled = true;
+            }
+
+            // Remover linhas vencedoras
+            document.querySelectorAll('.winning-line').forEach(line => line.remove());
+
+            // Atualizar a exibição do tabuleiro
+            updateBoardDisplay();
+        }
+
+        // Função para mostrar mensagens
+        function showMessage(message, isError = false) {
+            gameStatus.textContent = message;
+            if (isError) {
+                gameStatus.classList.add('text-red-500');
+                setTimeout(() => {
+                    gameStatus.classList.remove('text-red-500');
+                }, 1000);
+            }
+        }
+
+        // Função para mostrar a tela de vitória
+        function showVictoryScreen(winner, line) {
+            victoryTitle.textContent = `JOGADOR ${winner} VENCEU!`;
+            victoryTitle.style.color = winner === 'X' ? 'var(--player-x-color)' : 'var(--player-o-color)';
+            victoryMessage.textContent = 'Parabéns! Você venceu o Ultimate Jogo da Velha!';
+            
+            // Mostrar a tela de vitória
+            victoryScreen.classList.add('active');
+
+            // Destacar a linha vencedora
+            highlightWinningLine(line);
+
+            // Criar efeito de confete
+            createConfetti(winner);
+        }
+
+        // Função para mostrar a tela de empate
+        function showDrawVictory() {
+            victoryTitle.textContent = `EMPATE!`;
+            victoryTitle.style.color = '#888';
+            victoryMessage.textContent = 'O jogo terminou em empate!';
+            
+            // Mostrar a tela de vitória
+            victoryScreen.classList.add('active');
+        }
+
+        // Função para esconder a tela de vitória
+        function hideVictoryScreen() {
+            victoryScreen.classList.remove('active');
+            document.querySelectorAll('.confetti').forEach(c => c.remove());
+        }
+
+        // Função para destacar a linha vencedora
+        function highlightWinningLine(line) {
+            if (!line) return;
+
+            const [a, b, c] = line;
+            const boardCells = document.querySelectorAll('.board-cell');
+            
+            // Determinar o tipo de linha (horizontal, vertical ou diagonal)
+            let lineType;
+            if (a + 1 === b && b + 1 === c) { // horizontal
+                lineType = 'horizontal';
+            } else if (a + 3 === b && b + 3 === c) { // vertical
+                lineType = 'vertical';
+            } else if (a === 0 && b === 4 && c === 8) { // diagonal principal
+                lineType = 'diagonal-1';
+            } else if (a === 2 && b === 4 && c === 6) { // diagonal secundária
+                lineType = 'diagonal-2';
+            }
+
+            // Criar o elemento da linha vencedora
+            const winningLine = document.createElement('div');
+            winningLine.classList.add('winning-line', lineType);
+            
+            // Posicionar a linha de acordo com o tipo
+            if (lineType === 'horizontal') {
+                const rowIndex = Math.floor(a / 3);
+                winningLine.style.top = `${(rowIndex * 33.33) + 16.67}%`;
+            } else if (lineType === 'vertical') {
+                const colIndex = a % 3;
+                winningLine.style.left = `${(colIndex * 33.33) + 16.67}%`;
+            }
+            
+            // Adicionar a linha ao tabuleiro
+            bigBoard.appendChild(winningLine);
+            
+            // Animar a opacidade para destacar a linha
+            setTimeout(() => {
+                winningLine.style.opacity = '1';
+            }, 100);
+        }
+
+        // Função para criar efeito de confete
+        function createConfetti(winner) {
+            const colors = winner === 'X' ? 
+                ['#FF6B6B', '#FF9F9F', '#FFD3D3'] : 
+                ['#48BEFF', '#8DD7FF', '#C9EBFF'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Posição aleatória na tela
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = `-5vh`;
+                
+                // Tamanho aleatório
+                const size = Math.random() * 10 + 5;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                
+                // Forma aleatória
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                } else if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '0';
+                } else {
+                    confetti.style.transform = 'rotate(45deg)';
+                }
+                
+                // Atraso de animação aleatório
+                confetti.style.animationDelay = `${Math.random() * 3}s`;
+                
+                document.body.appendChild(confetti);
+                
+                // Remover após animação
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
         }
     </script>
 </body>
