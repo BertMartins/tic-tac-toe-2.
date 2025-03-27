@@ -29,7 +29,7 @@
             --cell-size: 30px;
             --player-x-color: #FF6B6B;
             --player-o-color: #48BEFF;
-            --active-board-color: rgba(93, 92, 222, 0.3);
+            --active-board-color: rgba(47, 169, 255, 0.549);
             --completed-board-x: rgba(255, 107, 107, 0.3);
             --completed-board-o: rgba(72, 190, 255, 0.3);
             --completed-board-draw: rgba(150, 150, 150, 0.3);
@@ -38,9 +38,9 @@
         }
 
         .dark {
-            --active-board-color: rgba(93, 92, 222, 0.5);
-            --completed-board-x: rgba(255, 107, 107, 0.5);
-            --completed-board-o: rgba(72, 190, 255, 0.5);
+            --active-board-color:rgba(47, 169, 255, 0.549);
+            --completed-board-x: rgb(17 24 39 / var(--tw-bg-opacity, 1));
+            --completed-board-o: rgb(17 24 39 / var(--tw-bg-opacity, 1));
             --completed-board-draw: rgba(150, 150, 150, 0.5);
             --grid-line-color: #555;
             --grid-line-color-dark: #888;
@@ -148,7 +148,7 @@
 
         .dark .mini-board::before,
         .dark .mini-board::after {
-            background-color: var(--grid-line-color-dark);
+            background-color:#88888800;
         }
 
         /* Linhas horizontais do jogo da velha */
@@ -189,7 +189,7 @@
         }
 
         .dark #big-board {
-            background-color: var(--grid-line-color-dark);
+            background-color: #ffffff00;
         }
 
         .cell {
@@ -232,7 +232,7 @@
             background-color: gold;
             z-index: 20;
             opacity: 0;
-            animation: pulse 1.5s infinite alternate;
+            animation: pulse 3 infinite alternate;
         }
 
         .winning-line.horizontal {
@@ -311,9 +311,9 @@
         /* Dark mode support */
         @media (prefers-color-scheme: dark) {
             :root {
-                --active-board-color: rgba(93, 92, 222, 0.5);
-                --completed-board-x: rgba(255, 107, 107, 0.5);
-                --completed-board-o: rgba(72, 190, 255, 0.5);
+                --active-board-color: rgba(47, 169, 255, 0.549);
+                --completed-board-x: rgb(17 24 39 / var(--tw-bg-opacity, 1));
+                --completed-board-o: rgb(17 24 39 / var(--tw-bg-opacity, 1));
                 --completed-board-draw: rgba(150, 150, 150, 0.5);
             }
         }
