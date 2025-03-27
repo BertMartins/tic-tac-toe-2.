@@ -97,16 +97,15 @@
             content: '';
             position: absolute;
             top: 0;
-            left: 0;
             right: 0;
             bottom: 0;
             background-color: rgba(255, 255, 255, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-size: 3rem;
             font-weight: bold;
             z-index: 10;
+            text-align: center;
+            background-color: #16161600 !important;
+            line-height: calc(var(--cell-size) * 3 + 2rem);
         }
 
         .dark .mini-board.won-x::after,
@@ -274,6 +273,7 @@
             0% {
                 opacity: 0.3;
             }
+
             100% {
                 opacity: 1;
             }
@@ -284,6 +284,7 @@
                 transform: translateY(0) rotate(0);
                 opacity: 1;
             }
+
             100% {
                 transform: translateY(100vh) rotate(720deg);
                 opacity: 0;
@@ -329,8 +330,7 @@
             começar</p>
     </div>
 
-    <div id="big-board"
-        class="grid grid-cols-3 gap-2 rounded-lg shadow-lg max-w-md mx-auto">
+    <div id="big-board" class="grid grid-cols-3 gap-2 rounded-lg shadow-lg max-w-md mx-auto">
         <!-- 9 mini tabuleiros serão gerados aqui via JavaScript -->
     </div>
 
@@ -362,7 +362,7 @@
     <div id="victory-screen" class="text-center">
         <h2 id="victory-title" class="text-5xl font-bold mb-8 animate-bounce"></h2>
         <p id="victory-message" class="text-2xl mb-8"></p>
-        <button id="new-game-btn" 
+        <button id="new-game-btn"
             class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium text-xl">
             Jogar Novamente
         </button>
@@ -529,7 +529,7 @@
                 if (result) {
                     gameState.gameResult = result.winner;
                     gameState.winningLine = result.line;
-                    
+
                     if (result.winner === 'draw') {
                         showMessage(`Jogo empatado!`);
                         showDrawVictory();
@@ -646,7 +646,7 @@
             for (const line of lines) {
                 const [a, b, c] = line;
                 if (board[a] && board[a] === board[b] && board[a] === board[c] &&
-                   board[a] !== 'draw') { // Não considerar empates como vitória
+                    board[a] !== 'draw') { // Não considerar empates como vitória
                     return {
                         winner: board[a],
                         line: line
@@ -702,7 +702,7 @@
             // Atualizar a exibição
             currentPlayerDisplay.textContent = gameState.currentPlayer;
             currentPlayerDisplay.style.color = gameState.currentPlayer === 'X' ? 'var(--player-x-color)' : 'var(--player-o-color)';
-            
+
             if (gameState.activeBoardIndex === null) {
                 gameStatus.textContent = 'Jogue em qualquer tabuleiro disponível';
             } else {
@@ -737,7 +737,7 @@
             victoryTitle.textContent = `JOGADOR ${winner} VENCEU!`;
             victoryTitle.style.color = winner === 'X' ? 'var(--player-x-color)' : 'var(--player-o-color)';
             victoryMessage.textContent = 'Parabéns! Você venceu o Ultimate Jogo da Velha!';
-            
+
             // Mostrar a tela de vitória
             victoryScreen.classList.add('active');
 
@@ -753,7 +753,7 @@
             victoryTitle.textContent = `EMPATE!`;
             victoryTitle.style.color = '#888';
             victoryMessage.textContent = 'O jogo terminou em empate!';
-            
+
             // Mostrar a tela de vitória
             victoryScreen.classList.add('active');
         }
@@ -770,7 +770,7 @@
 
             const [a, b, c] = line;
             const boardCells = document.querySelectorAll('.board-cell');
-            
+
             // Determinar o tipo de linha (horizontal, vertical ou diagonal)
             let lineType;
             if (a + 1 === b && b + 1 === c) { // horizontal
@@ -786,7 +786,7 @@
             // Criar o elemento da linha vencedora
             const winningLine = document.createElement('div');
             winningLine.classList.add('winning-line', lineType);
-            
+
             // Posicionar a linha de acordo com o tipo
             if (lineType === 'horizontal') {
                 const rowIndex = Math.floor(a / 3);
@@ -795,10 +795,10 @@
                 const colIndex = a % 3;
                 winningLine.style.left = `${(colIndex * 33.33) + 16.67}%`;
             }
-            
+
             // Adicionar a linha ao tabuleiro
             bigBoard.appendChild(winningLine);
-            
+
             // Animar a opacidade para destacar a linha
             setTimeout(() => {
                 winningLine.style.opacity = '1';
@@ -807,24 +807,24 @@
 
         // Função para criar efeito de confete
         function createConfetti(winner) {
-            const colors = winner === 'X' ? 
-                ['#FF6B6B', '#FF9F9F', '#FFD3D3'] : 
+            const colors = winner === 'X' ?
+                ['#FF6B6B', '#FF9F9F', '#FFD3D3'] :
                 ['#48BEFF', '#8DD7FF', '#C9EBFF'];
-            
+
             for (let i = 0; i < 100; i++) {
                 const confetti = document.createElement('div');
                 confetti.classList.add('confetti');
                 confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                
+
                 // Posição aleatória na tela
                 confetti.style.left = `${Math.random() * 100}vw`;
                 confetti.style.top = `-5vh`;
-                
+
                 // Tamanho aleatório
                 const size = Math.random() * 10 + 5;
                 confetti.style.width = `${size}px`;
                 confetti.style.height = `${size}px`;
-                
+
                 // Forma aleatória
                 if (Math.random() > 0.5) {
                     confetti.style.borderRadius = '50%';
@@ -833,12 +833,12 @@
                 } else {
                     confetti.style.transform = 'rotate(45deg)';
                 }
-                
+
                 // Atraso de animação aleatório
                 confetti.style.animationDelay = `${Math.random() * 3}s`;
-                
+
                 document.body.appendChild(confetti);
-                
+
                 // Remover após animação
                 setTimeout(() => {
                     confetti.remove();
